@@ -1,0 +1,18 @@
+plugins {
+    id 'application'
+}
+
+dependencies {
+    implementation project(':core-framework')
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+application {
+    mainClass = 'app.Main'
+}
+
+test {
+    useJUnitPlatform()
+}
+
