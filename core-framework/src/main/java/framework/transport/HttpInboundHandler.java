@@ -1,19 +1,18 @@
 package framework.transport;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
-import io.netty.util.CharsetUtil;
-
-import javax.xml.stream.events.Characters;
-import java.nio.ByteBuffer;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 
 
 public class HttpInboundHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
+    private final RequestResolver requestResolver;
 
+    public HttpInboundHandler() {
+        this.requestResolver=new RequestResolver();
+    }
     @Override
     public void channelReadComplete(io.netty.channel.ChannelHandlerContext ctx) throws Exception {
         ctx.flush();
@@ -26,21 +25,13 @@ public class HttpInboundHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-           String uri=msg.uri();
-           HttpMethod method=msg.method();
-        var content= "server is up & running !".getBytes(CharsetUtil.UTF_8);
-        int contentLength=content.length;
-        ByteBuf buf= Unpooled.copiedBuffer(content);
-
-        FullHttpResponse response;
-        if(uri.equals("/health") && method.equals(HttpMethod.GET)) {
-            response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,HttpResponseStatus.OK, buf);
-               response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
-               response.headers().set(HttpHeaderNames.CONTENT_LENGTH,contentLength);
-        } else {
-            response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND);
-            response.headers().set(HttpHeaderNames.CONTENT_LENGTH,0);
-        }
-        ctx.writeAndFlush(response);
+        FullHttpResponse response=this.requestResolver
+                .resolve(msg.method())
+                .handleRequest(msg);
+             ctx.writeAndFlush(response).addListener(future -> {
+            if (!future.isSuccess()) {
+                System.err.println("Failed to send response: " + future.cause());
+            }
+        });
     }
 }
