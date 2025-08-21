@@ -1,28 +1,29 @@
 package framework.transport;
 
 import io.netty.handler.codec.http.HttpMethod;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RequestResolver {
-   private Map<HttpMethod, HttpReuqestHandler> requestHandlers;
+
+    private Map<HttpMethod, HttpRequestHandler> requestHandlers;
 
    public RequestResolver() {
-       HttpReuqestHandler getRequestHandler=new GetRequestHandler();
-       HttpReuqestHandler postRequestHandler=new PostRequestHandler();
-       List<HttpReuqestHandler> requestHandlers=List.of(getRequestHandler, postRequestHandler);
+       HttpRequestHandler getRequestHandler=new GetRequestHandler();
+       HttpRequestHandler postRequestHandler=new PostRequestHandler();
+       List<HttpRequestHandler> requestHandlers=List.of(getRequestHandler, postRequestHandler);
        createRequestHandler(requestHandlers);
    }
 
-   private void createRequestHandler(List<HttpReuqestHandler> handlers) {
+   private void createRequestHandler(List<HttpRequestHandler> handlers) {
        this.requestHandlers = handlers.stream()
-               .collect(Collectors.toMap(HttpReuqestHandler::getMethod, handler -> handler));
+               .collect(Collectors.toMap(HttpRequestHandler::getMethod, handler -> handler));
    }
 
-    public HttpReuqestHandler resolve(HttpMethod method) {
-         return requestHandlers.get(method);
+    public HttpRequestHandler resolve(HttpMethod method) {
+         return requestHandlers.getOrDefault(method,
+                new UnSupportedRequestHandler());
     }
 
 

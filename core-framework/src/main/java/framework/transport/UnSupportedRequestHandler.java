@@ -4,16 +4,15 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.util.CharsetUtil;
 
-public class GetRequestHandler implements HttpRequestHandler{
+public class UnSupportedRequestHandler implements HttpRequestHandler{
     @Override
     public HttpMethod getMethod() {
-        return HttpMethod.GET;
+        return null;
     }
 
     @Override
     public FullHttpResponse handleRequest(FullHttpRequest request) {
-        return createResponse(HttpResponseStatus.OK, "GET request received".getBytes(CharsetUtil.UTF_8));
+        return createResponse(HttpResponseStatus.METHOD_NOT_ALLOWED, "Unsupported Http Method".getBytes());
     }
 }
