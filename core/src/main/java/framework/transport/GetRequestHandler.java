@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
+import static framework.router.Router.ROUTE;
 
 public class GetRequestHandler implements HttpRequestHandler{
     @Override
@@ -14,6 +15,7 @@ public class GetRequestHandler implements HttpRequestHandler{
 
     @Override
     public FullHttpResponse handleRequest(FullHttpRequest request) {
-        return createResponse(HttpResponseStatus.OK, "GET request received".getBytes(CharsetUtil.UTF_8));
+        String response=ROUTE.getHandler(HttpMethod.GET, request.uri()).get();
+        return createResponse(HttpResponseStatus.OK, response.getBytes(CharsetUtil.UTF_8));
     }
 }
