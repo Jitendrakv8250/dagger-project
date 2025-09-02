@@ -13,6 +13,6 @@ public class UnSupportedRequestHandler implements HttpRequestHandler{
 
     @Override
     public FullHttpResponse handleRequest(FullHttpRequest request) {
-        return createResponse(HttpResponseStatus.METHOD_NOT_ALLOWED, "Unsupported Http Method".getBytes());
+        return createResponse(HttpResponseStatus.METHOD_NOT_ALLOWED,"text/plain", "Unsupported Http Method".getBytes());
     }
 }

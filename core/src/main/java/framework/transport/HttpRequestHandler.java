@@ -9,11 +9,11 @@ public interface HttpRequestHandler {
     HttpMethod getMethod();
     FullHttpResponse handleRequest(FullHttpRequest request);
 
-    default FullHttpResponse createResponse(HttpResponseStatus status, byte[] content) {
+    default FullHttpResponse createResponse(HttpResponseStatus status,String contentType, byte[] content) {
             int contentLength=content.length;
             ByteBuf buf= Unpooled.copiedBuffer(content);
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,status, buf);
-            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
             response.headers().set(HttpHeaderNames.CONTENT_LENGTH,contentLength);
             return response;
     }
