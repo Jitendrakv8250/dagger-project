@@ -3,39 +3,31 @@ package framework.router;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static framework.router.RouteRegistration.ROUTE_REGISTRATION;
+
 public enum Router {
+    ROUTE;
 
-    ROUTE();
 
-    public void GET(String uri, String contentType, Supplier<?> handler){
+    void GET(String uri, String contentType, Function<RequestContext,?> handler){
         addRoute(new RouteNode(HttpMethod.GET,uri,handler, contentType));
     }
-    public void POST(String uri,String contentType,Supplier<?> handler){
+    void POST(String uri, String contentType, Function<RequestContext,?> handler){
 
         addRoute(new RouteNode(HttpMethod.POST,uri,handler, contentType));
     }
 
-    /*public void PUT(String uri){
-        addRoute(HttpMethod.PUT,uri,() -> "Updated resource at-- " + uri);
+    void PUT(String uri){
+        addRoute(new RouteNode(HttpMethod.PUT,uri,requestContext -> "Updated resource at-- " + uri, HttpHeaderValues.APPLICATION_JSON.toString()));
     }
-    public void DELETE(String uri){
-        addRoute(HttpMethod.DELETE,uri, () -> "Deleted resource at-- " + uri);
-    }*/
-
-    private final Map<HttpMethod,Map<String, RouteNode>> routes = new HashMap<>() {{
-        put(HttpMethod.GET, new HashMap<>());
-        put(HttpMethod.POST, new HashMap<>());
-        put(HttpMethod.PUT, new HashMap<>());
-        put(HttpMethod.DELETE, new HashMap<>());
-    }};
-    public void addRoute(RouteNode routeNode) {
-        routes.get(routeNode.method()).put(routeNode.path(), routeNode);
+    void DELETE(String uri){
+        addRoute(new RouteNode(HttpMethod.DELETE,uri, requestContext -> "Deleted resource at-- " + uri, HttpHeaderValues.APPLICATION_JSON.toString()));
     }
 
-    public RouteNode getHandler(HttpMethod httpMethod,String path) {
-        return routes.get(httpMethod).get(path);
+    private void addRoute(RouteNode routeNode) {
+        ROUTE_REGISTRATION.addRoute(routeNode);
     }
 }

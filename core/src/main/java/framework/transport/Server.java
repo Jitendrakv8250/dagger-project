@@ -32,10 +32,9 @@ public class Server {
             }
         });
       }
-    private static class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
+    private  final class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         @Override
         protected void initChannel(SocketChannel ch) throws Exception {
-
             ch.pipeline().addLast(new HttpServerCodec());
             ch.pipeline().addLast(new HttpObjectAggregator(64 * 1024)); // Aggregate HTTP messages up to 64KB
             ch.pipeline().addLast(new HttpInboundHandler());

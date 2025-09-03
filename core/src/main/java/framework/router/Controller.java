@@ -1,6 +1,6 @@
 package framework.router;
 
 public interface Controller {
-    Router router = Router.ROUTE;
+    App app= App.APP;
     void init();
 }

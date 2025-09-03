@@ -1,10 +1,12 @@
 package framework.transport;
 
+import framework.router.RequestContext;
 import framework.router.ResponseContext;
 import framework.router.RouteNode;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
-import static framework.router.Router.ROUTE;
+
+import static framework.router.RouteRegistration.ROUTE_REGISTRATION;
 import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 
 public class GetRequestHandler implements HttpRequestHandler{
@@ -16,14 +18,19 @@ public class GetRequestHandler implements HttpRequestHandler{
 
     @Override
     public FullHttpResponse handleRequest(FullHttpRequest request) {
-        RouteNode routeNode=ROUTE.getHandler(HttpMethod.GET, request.uri());
+
+        RouteNode routeNode=ROUTE_REGISTRATION.resolveRoute(getMethod(),request.uri());
         if(routeNode==null){
             return createResponse(HttpResponseStatus.NOT_FOUND,"text/plain", "Route not found".getBytes(CharsetUtil.UTF_8));
         }
-        if(routeNode.contentType().equals(HttpHeaderValues.APPLICATION_JSON.toString())){
-           String value= responseContext.asJson(routeNode.handler().get());
+        RequestContext requestContext=new RequestContext(routeNode,null,routeNode.getPathVariables());
+        var response = requestContext.getRouteNode().getHandler().apply(requestContext);
+        if(routeNode.getContentType().equals(HttpHeaderValues.APPLICATION_JSON.toString())){
+            String value= responseContext.asJson(response);
             return createResponse(HttpResponseStatus.OK,APPLICATION_JSON,value.getBytes(CharsetUtil.UTF_8));
         }
-        return createResponse(HttpResponseStatus.OK,routeNode.contentType(),routeNode.handler().get().toString().getBytes(CharsetUtil.UTF_8));
+        return createResponse(HttpResponseStatus.OK,routeNode.getContentType(),response.toString().getBytes(CharsetUtil.UTF_8));
     }
+
+
 }
